@@ -21,7 +21,7 @@ Team Task Manager is a full-stack web application designed for efficient project
 ##  Key Features & Functionality
 
 ###  Authentication & Authorization
-- **JWT Authentication**: Secure login using access and refresh tokens.
+- **Token Authentication**: Secure login using access and refresh tokens.
 - **Role-Based Access Control (RBAC)**: Users are either **Admins** or **Members**.
 - **Auth Guards**: 
   - Logged-in users are automatically redirected to the dashboard if they attempt to visit the `/login` or `/signup` pages.
