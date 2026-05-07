@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000/api/' || 'https://resplendent-upliftment-production-beed.up.railway.app'
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000/api/' || 'https://team-task-manager-production-8292.up.railway.app/api/login/app'
 });
 
 api.interceptors.request.use((config) => {
