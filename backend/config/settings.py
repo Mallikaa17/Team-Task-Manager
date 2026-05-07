@@ -94,9 +94,16 @@ WSGI_APPLICATION = 'config.wsgi.application'
 import dj_database_url
 import os
 
+# Railway provides either DATABASE_URL, MYSQL_URL, or individual MYSQL_* variables
+db_url = (
+    os.getenv('DATABASE_URL') or 
+    os.getenv('MYSQL_URL') or 
+    f"mysql://{os.getenv('MYSQL_USER', 'root')}:{os.getenv('MYSQL_PASSWORD', 'Mallika@2004')}@{os.getenv('MYSQL_HOST', 'localhost')}:{os.getenv('MYSQL_PORT', '3306')}/{os.getenv('MYSQL_DATABASE', 'task_manager')}"
+)
+
 DATABASES = {
     'default': dj_database_url.config(
-        default=os.getenv('DATABASE_URL', 'mysql://root:Mallika@2004@localhost:3306/task_manager'),
+        default=db_url,
         conn_max_age=600,
         conn_health_checks=True,
     )
