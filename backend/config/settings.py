@@ -57,9 +57,9 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-    # "https://your-production-frontend-domain.com",  # Add production URL here
+    # "http://localhost:5173",
+    # "http://127.0.0.1:5173",
+    "https://resplendent-upliftment-production-beed.up.railway.app",
 ]
 
 REST_FRAMEWORK = {
