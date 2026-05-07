@@ -18,9 +18,15 @@ const Signup = () => {
     setLoading(true);
 
     try {
-      await api.post('signup/', { username, email, password, role });
+      await api.post('signup/', {
+       username,
+       email,
+       password,
+       role,
+      });
       navigate('/login');
     } catch (err) {
+
       console.error(err);
       setError('Registration failed. Please try again.');
     } finally {

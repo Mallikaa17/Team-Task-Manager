@@ -16,7 +16,10 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const response = await api.post('login/', { username, password });
+      const response = await api.post('login/', {
+        username,
+        password,
+    });
       localStorage.setItem('token', response.data.access);
       // Let's fetch the user details to store role
       const userRes = await api.get('users/me/');
