@@ -5,3 +5,4 @@ pymysql
 django-cors-headers
 python-dotenv
 dj-database-url
+cryptography
