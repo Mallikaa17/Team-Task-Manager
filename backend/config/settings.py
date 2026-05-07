@@ -91,15 +91,15 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+import dj_database_url
+import os
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'task_manager',
-        'USER': 'root',
-        'PASSWORD': 'Mallika@2004',
-        'HOST': 'localhost',
-        'PORT': '3306',
-    }
+    'default': dj_database_url.config(
+        default=os.getenv('DATABASE_URL', 'mysql://root:Mallika@2004@localhost:3306/task_manager'),
+        conn_max_age=600,
+        conn_health_checks=True,
+    )
 }
 
 
