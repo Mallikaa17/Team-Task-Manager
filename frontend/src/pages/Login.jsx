@@ -27,7 +27,11 @@ const Login = () => {
       navigate('/', { replace: true });
     } catch (err) {
       console.error(err);
-      setError('Invalid credentials. Please try again.');
+      if (err.response) {
+        setError('Invalid credentials. Please try again.');
+      } else {
+        setError('Network Error. Could not connect to the backend server.');
+      }
     } finally {
       setLoading(false);
     }
