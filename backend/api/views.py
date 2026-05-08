@@ -37,11 +37,11 @@ class MemberViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated, IsAdminUser]
 
     def get_queryset(self):
-        return User.objects.filter(role='member')
+        return User.objects.filter(role='member', created_by=self.request.user)
 
     def perform_create(self, serializer):
         # Admins can explicitly create users as members
-        serializer.save(role='member')
+        serializer.save(role='member', created_by=self.request.user)
 
 class ProjectViewSet(viewsets.ModelViewSet):
     serializer_class = ProjectSerializer
@@ -61,10 +61,10 @@ class ProjectViewSet(viewsets.ModelViewSet):
     def assign_members(self, request, pk=None):
         project = self.get_object()
         member_ids = request.data.get('member_ids', [])
-        
-        # Ensure all IDs belong to users with the 'member' role
-        members = User.objects.filter(id__in=member_ids, role='member')
-        
+
+        # Ensure all IDs belong to users with the 'member' role and created by this admin
+        members = User.objects.filter(id__in=member_ids, role='member', created_by=request.user)
+
         # Replace the assigned members with the new list
         project.assigned_members.set(members)
         

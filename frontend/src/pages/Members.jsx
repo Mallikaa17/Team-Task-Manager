@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { UserPlus, Loader2, Users, Edit2, Trash2 } from 'lucide-react';
 import api from '../api';
 
@@ -18,9 +19,50 @@ const Members = () => {
     confirm_password: ''
   });
 
+  const navigate = useNavigate();
+
   useEffect(() => {
     fetchMembers();
   }, []);
+
+  const stateRef = React.useRef({ isCreating });
+  useEffect(() => {
+    stateRef.current = { isCreating };
+  }, [isCreating]);
+
+  useEffect(() => {
+    let mountedAt = Date.now();
+    window.history.pushState(null, null, window.location.pathname);
+    
+    const handlePopState = (e) => {
+      if (Date.now() - mountedAt < 500) {
+        window.history.pushState(null, null, window.location.pathname);
+        return;
+      }
+      
+      const { isCreating: creating } = stateRef.current;
+      
+      if (creating) {
+        setIsCreating(false);
+        navigate('/members', { replace: true });
+        window.history.pushState(null, null, '/members');
+      } else {
+        if (window.confirm("Do you want to log out?")) {
+          sessionStorage.removeItem('token');
+          sessionStorage.removeItem('role');
+          navigate('/login', { replace: true });
+        } else {
+          navigate('/members', { replace: true });
+          window.history.pushState(null, null, '/members');
+        }
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [navigate]);
 
   const fetchMembers = async () => {
     try {

@@ -8,6 +8,7 @@ class User(AbstractUser):
     )
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='member')
     phone_number = models.CharField(max_length=15, blank=True, null=True)
+    created_by = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='created_users')
 
 class Project(models.Model):
     name = models.CharField(max_length=255)

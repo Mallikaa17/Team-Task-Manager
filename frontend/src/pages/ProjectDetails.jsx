@@ -29,6 +29,46 @@ const ProjectDetails = () => {
     return () => window.removeEventListener('click', handleClickOutside);
   }, [id]);
 
+  const stateRef = React.useRef({ isCreating, editingTaskId });
+  useEffect(() => {
+    stateRef.current = { isCreating, editingTaskId };
+  }, [isCreating, editingTaskId]);
+
+  useEffect(() => {
+    let mountedAt = Date.now();
+    window.history.pushState(null, null, window.location.pathname);
+    
+    const handlePopState = (e) => {
+      if (Date.now() - mountedAt < 500) {
+        window.history.pushState(null, null, window.location.pathname);
+        return;
+      }
+      
+      const { isCreating: creating, editingTaskId: editing } = stateRef.current;
+      
+      if (creating || editing) {
+        setIsCreating(false);
+        setEditingTaskId(null);
+        navigate(`/project/${id}`, { replace: true });
+        window.history.pushState(null, null, `/project/${id}`);
+      } else {
+        if (window.confirm("Do you want to log out?")) {
+          sessionStorage.removeItem('token');
+          sessionStorage.removeItem('role');
+          navigate('/login', { replace: true });
+        } else {
+          navigate(`/project/${id}`, { replace: true });
+          window.history.pushState(null, null, `/project/${id}`);
+        }
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [navigate, id]);
+
   const fetchProjectAndTasks = async () => {
     try {
       const [projectRes, tasksRes] = await Promise.all([
