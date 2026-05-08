@@ -1,4 +1,4 @@
-# Team Task Manager
+Team Task Manager
 
 Team Task Manager is a full-stack web application designed for efficient project and task management with role-based access control. It allows Administrators to manage projects, create tasks, and oversee team members, while empowering Members to focus solely on updating the status of their assigned work.
 
@@ -8,6 +8,7 @@ Team Task Manager is a full-stack web application designed for efficient project
 - **Framework**: Django & Django REST Framework (DRF)
 - **Database**: MySQL
 - **Authentication**: JWT (JSON Web Tokens) via `djangorestframework-simplejwt`
+- **Server**: Gunicorn (for production deployments)
 
 ### Frontend
 - **Framework**: React (built with Vite)
@@ -20,21 +21,24 @@ Team Task Manager is a full-stack web application designed for efficient project
 
 ##  Key Features & Functionality
 
-###  Authentication & Authorization
+###  Authentication & Security Enhancements
 - **JWT Authentication**: Secure login using access and refresh tokens.
 - **Role-Based Access Control (RBAC)**: Users are either **Admins** or **Members**.
-- **Auth Guards**: 
+- **Session Isolation**: Tokens are stored strictly in `sessionStorage` ensuring that your login session is tied directly to your active browser tab.
+- **Advanced Navigation Guards**: 
   - Logged-in users are automatically redirected to the dashboard if they attempt to visit the `/login` or `/signup` pages.
   - Unauthorized users are forced to log in before accessing private routes.
+  - A custom navigation interceptor catches the browser's "Back" button to prevent accidental logouts. If pressed on a main page, it will prompt the user with "Do you want to log out?".
 - **Custom Validations**: Strict form validations including minimum password lengths, and a rigid 10-digit phone number validation enforcing Indian prefix rules (starts with 6, 7, 8, or 9).
 
 ###  Admin Capabilities
+- **Strict Data Isolation**: An Admin can **only** see and assign Members that they themselves have created. Other Admins' members remain completely invisible.
 - **Dashboard**: View all projects they own.
 - **Project Management**: Create, edit, and delete projects.
 - **Member Assignment**: Assign multiple Members to specific projects directly from the dashboard via a dedicated "Assign Members" modal.
 - **Task Management**: Create tasks within projects (tasks default to "To Do"), edit task details, and delete tasks.
 - **Read-Only Status**: Admins can oversee the status of tasks but **cannot** manually update the status. Only members can update statuses.
-- **Member Management**: Access a dedicated `/members` portal to create new member accounts, view member details (including phone numbers), and delete members.
+- **Member Management**: Access a dedicated `/members` portal to create new member accounts, view member details (including phone numbers), and delete members. (The "Last Name" field is optional).
 
 ###  Member Capabilities
 - **Focused Dashboard**: Members only see the projects they have been specifically assigned to by an Admin.
@@ -49,13 +53,14 @@ Team Task Manager is a full-stack web application designed for efficient project
 The project is divided into two main directories:
 
 1. **`/backend`**: Contains the Django project and API logic.
-   - `api/models.py`: Defines the `User` (customized with `phone_number` and `role`), `Project` (with `assigned_members`), and `Task` models.
+   - `api/models.py`: Defines the `User` (customized with `phone_number`, `role`, and `created_by` for strict admin isolation), `Project` (with `assigned_members`), and `Task` models.
    - `api/views.py`: Contains ViewSets with conditional querysets and permissions ensuring Admins and Members only access what they are authorized to see.
+   - `Procfile`: Configured with Gunicorn and automatic database migrations (`python manage.py migrate`) for seamless cloud deployments (e.g., on Railway).
 2. **`/frontend`**: Contains the React application.
    - `src/App.jsx`: Configures React Router with `PrivateRoute` and `PublicRoute` wrappers.
-   - `src/pages/Dashboard.jsx`: Role-aware dashboard for managing/viewing projects.
+   - `src/pages/Dashboard.jsx` & `Members.jsx`: Role-aware dashboard for managing/viewing projects, equipped with popstate interceptors.
    - `src/pages/ProjectDetails.jsx`: Displays tasks and handles the strict separation of task creation (Admin) vs. task status updates (Member).
-   - `src/pages/Members.jsx`: Admin-only portal with comprehensive form validations for creating members.
+   - `.env.development` & `.env.production`: Cleanly separates API URLs for local development and cloud production deployments.
 
 ---
 
@@ -111,7 +116,7 @@ The project is divided into two main directories:
 - `POST /api/signup/`: Register a new user (Select role: Admin or Member).
 - `POST /api/login/`: Authenticate and receive JWT tokens.
 - `GET /api/users/me/`: Retrieve details and role of the currently logged-in user.
-- `GET / POST /api/members/`: (Admin only) List or create new members.
+- `GET / POST /api/members/`: (Admin only) List or create new members. Returns only members created by the requesting Admin.
 - `GET / POST / PUT / DELETE /api/projects/`: Manage projects. Responses are filtered based on the user's role.
 - `POST /api/projects/{id}/assign_members/`: (Admin only) Assign a list of members to a project.
 - `GET / POST / PUT / PATCH / DELETE /api/tasks/`: Manage tasks. Admins create tasks; Members patch the `status`.
