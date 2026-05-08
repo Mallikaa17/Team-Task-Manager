@@ -20,11 +20,11 @@ const Login = () => {
         username,
         password,
     });
-      localStorage.setItem('token', response.data.access);
+      sessionStorage.setItem('token', response.data.access);
       // Let's fetch the user details to store role
       const userRes = await api.get('users/me/');
-      localStorage.setItem('role', userRes.data.role);
-      navigate('/');
+      sessionStorage.setItem('role', userRes.data.role);
+      navigate('/', { replace: true });
     } catch (err) {
       console.error(err);
       setError('Invalid credentials. Please try again.');

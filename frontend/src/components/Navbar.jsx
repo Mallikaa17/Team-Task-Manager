@@ -4,12 +4,12 @@ import { LayoutDashboard, LogOut, Users } from 'lucide-react';
 
 const Navbar = () => {
   const navigate = useNavigate();
-  const token = localStorage.getItem('token');
+  const token = sessionStorage.getItem('token');
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('role');
-    navigate('/login');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('role');
+    navigate('/login', { replace: true });
   };
 
   if (!token) return null;
@@ -28,7 +28,7 @@ const Navbar = () => {
                 <Link to="/" className="text-indigo-100 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
                   Dashboard
                 </Link>
-                {localStorage.getItem('role') === 'admin' && (
+                {sessionStorage.getItem('role') === 'admin' && (
                   <Link to="/members" className="text-indigo-100 hover:text-white px-3 py-2 rounded-md text-sm font-medium flex items-center">
                     <Users className="w-4 h-4 mr-1" />
                     Members

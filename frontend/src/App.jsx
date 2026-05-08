@@ -8,13 +8,13 @@ import ProjectDetails from './pages/ProjectDetails';
 import Members from './pages/Members';
 
 const PrivateRoute = ({ children }) => {
-  const token = localStorage.getItem('token');
-  return token ? children : <Navigate to="/login" />;
+  const token = sessionStorage.getItem('token');
+  return token ? children : <Navigate to="/login" replace />;
 };
 
 const PublicRoute = ({ children }) => {
-  const token = localStorage.getItem('token');
-  return !token ? children : <Navigate to="/" />;
+  const token = sessionStorage.getItem('token');
+  return !token ? children : <Navigate to="/" replace />;
 };
 
 function App() {

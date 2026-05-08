@@ -71,8 +71,8 @@ const Members = () => {
       setError("First name must be at least 2 characters long and contain only letters.");
       return;
     }
-    if (!nameRegex.test(formData.last_name)) {
-      setError("Last name must be at least 2 characters long and contain only letters.");
+    if (formData.last_name && !nameRegex.test(formData.last_name)) {
+      setError("Last name must contain only letters and be at least 2 characters long if provided.");
       return;
     }
     
@@ -171,8 +171,8 @@ const Members = () => {
               <input type="text" name="first_name" required pattern="^[a-zA-Z\s]{2,50}$" title="Only letters and spaces, at least 2 characters" value={formData.first_name} onChange={handleInputChange} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Last Name</label>
-              <input type="text" name="last_name" required pattern="^[a-zA-Z\s]{2,50}$" title="Only letters and spaces, at least 2 characters" value={formData.last_name} onChange={handleInputChange} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
+              <label className="block text-sm font-medium text-gray-700">Last Name (Optional)</label>
+              <input type="text" name="last_name" pattern="^[a-zA-Z\s]{2,50}$" title="Only letters and spaces, at least 2 characters if provided" value={formData.last_name} onChange={handleInputChange} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">Phone Number</label>

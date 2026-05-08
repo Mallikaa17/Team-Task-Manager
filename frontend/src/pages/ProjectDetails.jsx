@@ -42,7 +42,9 @@ const ProjectDetails = () => {
       setTasks(projectRes.data.tasks || []);
     } catch (err) {
       if (err.response?.status === 401) {
-        navigate('/login');
+        sessionStorage.removeItem('token');
+        sessionStorage.removeItem('role');
+        navigate('/login', { replace: true });
       }
       console.error('Failed to fetch', err);
     } finally {
@@ -165,7 +167,7 @@ const ProjectDetails = () => {
             <h1 className="text-3xl font-bold text-gray-900">{project.name}</h1>
             <p className="mt-2 text-gray-600">{project.description}</p>
           </div>
-          {localStorage.getItem('role') === 'admin' && (
+          {sessionStorage.getItem('role') === 'admin' && (
             <button
               onClick={() => setIsCreating(!isCreating)}
               className="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
@@ -177,7 +179,7 @@ const ProjectDetails = () => {
         </div>
       </div>
 
-      {isCreating && localStorage.getItem('role') === 'admin' && (
+      {isCreating && sessionStorage.getItem('role') === 'admin' && (
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 mb-8">
           <h2 className="text-xl font-semibold mb-4">Create New Task</h2>
           <form onSubmit={handleCreateTask} className="space-y-4">
@@ -276,7 +278,7 @@ const ProjectDetails = () => {
                   </div>
                 </div>
                 <div className="flex items-center space-x-4 ml-4 flex-shrink-0">
-                  {localStorage.getItem('role') === 'member' ? (
+                  {sessionStorage.getItem('role') === 'member' ? (
                     <select
                       className="block w-full pl-3 pr-10 py-2 text-sm border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
                       value={task.status}
@@ -292,7 +294,7 @@ const ProjectDetails = () => {
                     </span>
                   )}
                   
-                  {localStorage.getItem('role') === 'admin' && (
+                  {sessionStorage.getItem('role') === 'admin' && (
                     <div className="relative">
                       <button
                         onClick={(e) => toggleMenu(e, task.id)}

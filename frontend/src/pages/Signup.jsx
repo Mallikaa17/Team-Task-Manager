@@ -24,7 +24,7 @@ const Signup = () => {
        password,
        role,
       });
-      navigate('/login');
+      navigate('/login', { replace: true });
     } catch (err) {
 
       console.error(err);

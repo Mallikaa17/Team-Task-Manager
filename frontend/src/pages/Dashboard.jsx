@@ -23,14 +23,60 @@ const Dashboard = () => {
 
   useEffect(() => {
     fetchProjects();
-    if (localStorage.getItem('role') === 'admin') {
+    if (sessionStorage.getItem('role') === 'admin') {
       fetchMembers();
     }
     // Close menu when clicking outside
     const handleClickOutside = () => setMenuOpenId(null);
     window.addEventListener('click', handleClickOutside);
-    return () => window.removeEventListener('click', handleClickOutside);
-  }, []);
+
+    return () => {
+      window.removeEventListener('click', handleClickOutside);
+    };
+  }, [navigate]);
+
+  const stateRef = React.useRef({ isCreating, editingProjectId, assigningProjectId });
+  useEffect(() => {
+    stateRef.current = { isCreating, editingProjectId, assigningProjectId };
+  }, [isCreating, editingProjectId, assigningProjectId]);
+
+  useEffect(() => {
+    // Prevent back button
+    let mountedAt = Date.now();
+    window.history.pushState(null, null, window.location.pathname);
+    
+    const handlePopState = (e) => {
+      // Ignore popstate events that happen immediately on load (browser restoring session)
+      if (Date.now() - mountedAt < 500) {
+        window.history.pushState(null, null, window.location.pathname);
+        return;
+      }
+      
+      const { isCreating: creating, editingProjectId: editing, assigningProjectId: assigning } = stateRef.current;
+      
+      if (creating || editing || assigning) {
+        setIsCreating(false);
+        setEditingProjectId(null);
+        setAssigningProjectId(null);
+        navigate('/', { replace: true });
+        window.history.pushState(null, null, '/');
+      } else {
+        if (window.confirm("Do you want to log out?")) {
+          sessionStorage.removeItem('token');
+          sessionStorage.removeItem('role');
+          navigate('/login', { replace: true });
+        } else {
+          navigate('/', { replace: true });
+          window.history.pushState(null, null, '/');
+        }
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [navigate]);
 
   const fetchMembers = async () => {
     try {
@@ -47,7 +93,9 @@ const Dashboard = () => {
       setProjects(response.data);
     } catch (err) {
       if (err.response?.status === 401) {
-        navigate('/login');
+        sessionStorage.removeItem('token');
+        sessionStorage.removeItem('role');
+        navigate('/login', { replace: true });
       }
       console.error('Failed to fetch projects', err);
     } finally {
@@ -152,7 +200,7 @@ const Dashboard = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Projects</h1>
-        {localStorage.getItem('role') === 'admin' && (
+        {sessionStorage.getItem('role') === 'admin' && (
           <button
             onClick={() => setIsCreating(!isCreating)}
             className="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
@@ -163,7 +211,7 @@ const Dashboard = () => {
         )}
       </div>
 
-      {isCreating && localStorage.getItem('role') === 'admin' && (
+      {isCreating && sessionStorage.getItem('role') === 'admin' && (
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 mb-8">
           <h2 className="text-xl font-semibold mb-4">Create New Project</h2>
           <form onSubmit={handleCreateProject} className="space-y-4">
@@ -317,7 +365,7 @@ const Dashboard = () => {
                   </div>
                   <h3 className="text-xl font-semibold text-gray-900 truncate">{project.name}</h3>
                 </div>
-                {localStorage.getItem('role') === 'admin' && (
+                {sessionStorage.getItem('role') === 'admin' && (
                   <div className="relative">
                     <button
                       onClick={(e) => toggleMenu(e, project.id)}
@@ -370,7 +418,7 @@ const Dashboard = () => {
           <div className="col-span-full bg-white p-12 text-center rounded-xl border border-gray-200 border-dashed">
             <FolderGit2 className="mx-auto h-12 w-12 text-gray-400 mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">No projects yet</h3>
-            {localStorage.getItem('role') === 'admin' ? (
+            {sessionStorage.getItem('role') === 'admin' ? (
               <>
                 <p className="text-gray-500 mb-6">Get started by creating your first project.</p>
                 <button
